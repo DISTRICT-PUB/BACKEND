@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Backend per il gioco a premi del District Pub",
   "main": "server.js",
-  "type": "module",
-  "scripts": {
+   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {

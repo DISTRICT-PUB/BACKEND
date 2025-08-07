@@ -1,56 +1,39 @@
-
 const express = require("express");
 const cors = require("cors");
-const fs = require("fs-extra");
-
 const app = express();
 const PORT = process.env.PORT || 3000;
-const HOST = '0.0.0.0';
 
 app.use(cors());
 app.use(express.json());
 
-const CLAIMS_FILE = "claims.json";
+const db = new Map();
 
-// Salva una vincita
-app.post("/api/save-claim", async (req, res) => {
-  try {
-    const data = await fs.readJson(CLAIMS_FILE);
-    data.push(req.body);
-    await fs.writeJson(CLAIMS_FILE, data, { spaces: 2 });
-    res.status(200).json({ message: "Claim salvato" });
-  } catch (error) {
-    res.status(500).json({ error: "Errore nel salvataggio" });
-  }
+// Salva un nuovo claim
+app.post("/api/save-claim", (req, res) => {
+  const { id, prize, phone, used = false, timestamp } = req.body;
+  if (!id || !prize) return res.status(400).json({ error: "Dati mancanti" });
+
+  db.set(id, { id, prize, phone, used, timestamp });
+  res.json({ message: "Salvato con successo", id });
 });
 
-// Ottieni info su un QR
-app.get("/api/claim/:id", async (req, res) => {
-  try {
-    const data = await fs.readJson(CLAIMS_FILE);
-    const claim = data.find(c => c.id === req.params.id);
-    if (!claim) return res.status(404).json({ error: "QR non trovato" });
-    res.status(200).json(claim);
-  } catch (error) {
-    res.status(500).json({ error: "Errore nella lettura" });
-  }
+// Verifica stato QR
+app.get("/api/claim/:id", (req, res) => {
+  const entry = db.get(req.params.id);
+  if (!entry) return res.status(404).json({ error: "QR non trovato" });
+  res.json(entry);
 });
 
-// Segna un QR come usato
-app.post("/api/use-claim", async (req, res) => {
-  try {
-    const data = await fs.readJson(CLAIMS_FILE);
-    const index = data.findIndex(c => c.id === req.body.id);
-    if (index === -1) return res.status(404).json({ error: "QR non trovato" });
+// Segna come usato
+app.post("/api/claim/:id/use", (req, res) => {
+  const entry = db.get(req.params.id);
+  if (!entry) return res.status(404).json({ error: "QR non trovato" });
 
-    data[index].used = true;
-    await fs.writeJson(CLAIMS_FILE, data, { spaces: 2 });
-    res.status(200).json({ message: "QR segnato come usato" });
-  } catch (error) {
-    res.status(500).json({ error: "Errore nell'aggiornamento" });
-  }
+  entry.used = true;
+  db.set(req.params.id, entry);
+  res.json({ message: "QR aggiornato", entry });
 });
 
-app.listen(PORT, HOST, () => {
-  console.log(`✅ Server in ascolto su http://${HOST}:${PORT}`);
+app.listen(PORT, () => {
+  console.log(`✅ Server in ascolto sulla porta ${PORT}`);
 });

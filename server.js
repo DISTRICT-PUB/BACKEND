@@ -45,6 +45,11 @@ app.post("/api/claim/:id/use", (req, res) => {
   res.json({ success: true });
 });
 
+// ✅ Endpoint per cron-job: tiene sveglio Render
+app.get("/keepalive", (req, res) => {
+  res.status(200).send("🟢 Backend attivo");
+});
+
 // Avvio server sulla porta dinamica fornita da Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

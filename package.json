@@ -1,13 +1,14 @@
 {
   "name": "district-pub-backend",
   "version": "1.0.0",
-  "description": "Backend per il gioco a premi del District Pub",
+  "description": "Backend per gestione premi District Pub",
   "main": "server.js",
-   "scripts": {
+  "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
+    "cors": "^2.8.5",
     "lowdb": "^6.0.1"
   }
 }

@@ -2,8 +2,10 @@
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs-extra");
+
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
+const HOST = '0.0.0.0';
 
 app.use(cors());
 app.use(express.json());
@@ -22,7 +24,7 @@ app.post("/api/save-claim", async (req, res) => {
   }
 });
 
-// Ottieni info su un QR (claim)
+// Ottieni info su un QR
 app.get("/api/claim/:id", async (req, res) => {
   try {
     const data = await fs.readJson(CLAIMS_FILE);
@@ -49,6 +51,6 @@ app.post("/api/use-claim", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server in ascolto su porta ${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`✅ Server in ascolto su http://${HOST}:${PORT}`);
 });
